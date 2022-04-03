@@ -100,7 +100,7 @@ class Screener:
 @click.option('--verbose', '-v', is_flag=True)
 @click.option('--output', '-o', default='.', type=click.STRING)
 @click.option('--overwrite', default='skip', type=click.STRING)
-def main(url: str, output: str = '.', verbose: bool = True, overwrite: str = 'skip'):
+def take(url: str, output: str = '.', verbose: bool = True, overwrite: str = 'skip'):
     msg.set_verbosity(verbose=verbose)
     if url.startswith('http://') or url.startswith('https://'):
         input_stream = [url]
@@ -144,11 +144,20 @@ def main(url: str, output: str = '.', verbose: bool = True, overwrite: str = 'sk
             msg(f'"{site_home_url}" skipped due to unexpected error')
 
 
-if __name__ == '__main__':
+@click.command()
+@click.argument('url', type=click.STRING)
+@click.option('--verbose', '-v', is_flag=True)
+@click.option('--output', '-o', default='.', type=click.STRING)
+@click.option('--overwrite', default='skip', type=click.STRING)
+def main(url: str, output: str = '.', verbose: bool = True, overwrite: str = 'skip'):
     try:
-        main()
+        take(url=url, output=output, verbose=verbose, overwrite=overwrite)
     except KeyboardInterrupt:
         print('Aborted!')
     except ScreenShotExitError as exit_ex:
         sys.stderr.write(f'Error {exit_ex}\n')
         sys.exit(1)
+
+
+if __name__ == '__main__':
+    main()
