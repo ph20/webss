@@ -146,9 +146,9 @@ def take(url: str, output: str = '.', verbose: bool = True, overwrite: str = 'sk
 
 @click.command()
 @click.argument('url', type=click.STRING)
-@click.option('--verbose', '-v', is_flag=True)
-@click.option('--output', '-o', default='.', type=click.STRING)
-@click.option('--overwrite', default='skip', type=click.STRING)
+@click.option('--verbose', '-v', is_flag=True, help='Show processing state on console')
+@click.option('--output', '-o', default='.', type=click.STRING, help='Directory for saving screenshots')
+@click.option('--overwrite', default='skip', type=click.STRING, help='Strategy for handling screenshot file conflicts')
 def main(url: str, output: str = '.', verbose: bool = True, overwrite: str = 'skip'):
     try:
         take(url=url, output=output, verbose=verbose, overwrite=overwrite)
