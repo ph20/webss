@@ -95,11 +95,6 @@ class Screener:
         return out_files
 
 
-@click.command()
-@click.argument('url', type=click.STRING)
-@click.option('--verbose', '-v', is_flag=True)
-@click.option('--output', '-o', default='.', type=click.STRING)
-@click.option('--overwrite', default='skip', type=click.STRING)
 def take(url: str, output: str = '.', verbose: bool = True, overwrite: str = 'skip'):
     msg.set_verbosity(verbose=verbose)
     if url.startswith('http://') or url.startswith('https://'):
