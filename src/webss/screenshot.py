@@ -59,7 +59,7 @@ class Screener:
     def _scroll(self, x):
         return self._driver.execute_script('return document.body.parentNode.scroll' + x)
 
-    def do(self, url, path):
+    def _do(self, url, path):
         out_files = []
         dir_path, file_name = os.path.split(path)
         file_name2 = self._full_prefix + file_name
@@ -94,6 +94,18 @@ class Screener:
         self.restore_size()
         return out_files
 
+    def do(self, url, path):
+        result = []
+        for turn in range(2):
+            try:
+                result = self._do(url=url, path=path)
+                break
+            except InvalidSessionIdException as session_ex:
+                screenshot_error = repr(str(session_ex).splitlines()[0])
+                msg(f'ERROR: {screenshot_error}. Reinit browser session and try again.')
+                self.reinit()
+        return result
+
 
 def take(url: str, output: str = '.', verbose: bool = True, overwrite: str = 'skip'):
     msg.set_verbosity(verbose=verbose)
@@ -123,14 +135,11 @@ def take(url: str, output: str = '.', verbose: bool = True, overwrite: str = 'sk
         if overwrite == 'skip' and os.path.exists(screen_file_name_path):
             msg(f'"{site_home_url}" skipped due to screenshot "{screen_file_name}" already created')
             continue
+
         msg(f'"{site_home_url}" processing...')
-        try:
-            start_time, process_time = time.time(), 0
-            out_files = screener.do(site_home_url, screen_file_name_path)
-            process_time = time.time() - start_time
-        except InvalidSessionIdException as session_ex:
-            msg(f'ERROR: {session_ex}. Reinit browser session.')
-            continue
+        start_time, process_time = time.time(), 0
+        out_files = screener.do(site_home_url, screen_file_name_path)
+        process_time = time.time() - start_time
 
         if out_files:
             out_files_str = '", "'.join(out_files)
