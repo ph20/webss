@@ -1,2 +1,2 @@
-export PATH=$PATH:$(pwd)/webss/bin
-export PYTHONPATH=$PYTHONPATH:$(pwd)/webss/src
+export PATH=$PATH:$(pwd)/bin
+export PYTHONPATH=$PYTHONPATH:$(pwd)/src
