@@ -63,6 +63,24 @@ class Screener:
     def _scroll(self, x):
         return self._driver.execute_script('return document.body.parentNode.scroll' + x)
 
+    def _screenshot(self, path, url):
+        try:
+            self._driver.find_element(by=By.TAG_NAME, value='body').screenshot(path)
+            return True
+        except WebDriverException as screenshot_ex:
+            if 'Cannot take screenshot with 0 height' in screenshot_ex.msg:
+                screenshot_error = repr(str(screenshot_ex.msg).splitlines()[0])
+                msg(f'WARN: Can\'t take screenshot "{url}": {screenshot_error}.')
+                try:
+                    self._driver.find_element(by=By.TAG_NAME, value='html').screenshot(path)
+                    return True
+                except WebDriverException as screenshot_ex:
+                    screenshot_error = repr(str(screenshot_ex).splitlines()[0])
+                    msg(f'ERROR: Can\'t take screenshot "{url}": {screenshot_error}.')
+            else:
+                screenshot_error = repr(str(screenshot_ex).splitlines()[0])
+                msg(f'ERROR: Can\'t take screenshot "{url}": {screenshot_error}.')
+
     def _do(self, url, path):
         out_files = []
         dir_path, file_name = os.path.split(path)
@@ -75,26 +93,17 @@ class Screener:
             msg(f'ERROR: Can\'t reach "{url}": {screenshot_error}.')
             return []
         time.sleep(TIME_SLEEP)
-        try:
-            body_cut = self._driver.find_element(by=By.TAG_NAME, value='body')
-            body_cut.screenshot(path)
+        if self._screenshot(path, url):
             out_files.append(file_name)
-        except WebDriverException as screenshot_ex:
-            screenshot_error = repr(str(screenshot_ex).splitlines()[0])
-            msg(f'ERROR: Can\'t take screenshot "{url}": {screenshot_error}.')
-            return []
+
         try:
             self._driver.set_window_size(self._scroll('Width'), self._scroll('Height'))
         except WebDriverException as resize_ex:
-            msg(f'WARNING: Can\'t resize browser for creation full screenshot: {resize_ex}')
-        body_full = self._driver.find_element(by=By.TAG_NAME, value='body')
+            resize_error = repr(str(resize_ex).splitlines()[0])
+            msg(f'WARNING: Can\'t resize browser for creation full screenshot: {resize_error}')
         path2 = os.path.join(dir_path, file_name2)
-        try:
-            body_full.screenshot(path2)
-        except WebDriverException as screenshot_ex:
-            msg(f'WARNING: Can\'t take full screenshot "{url}": {repr(screenshot_ex)}. Cut screenshot will be used.')
-            shutil.copy(path, path2)
-        out_files.append(file_name2)
+        if self._screenshot(path2, url):
+            out_files.append(file_name2)
         self.restore_size()
         return out_files
 
