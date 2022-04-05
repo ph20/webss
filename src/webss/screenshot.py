@@ -13,7 +13,8 @@ import shutil
 
 from webss.utils import Messanger
 
-
+#'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/100.0.4896.75 Safari/537.36'
+USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.75 Safari/537.36'
 TIME_SLEEP = 5
 FILE_PREFIX = 'screenshot_'
 FULL_PREFIX = 'full_'
@@ -30,18 +31,21 @@ class ScreenShotExitError(Exception):
 
 
 class Screener:
-    def __init__(self, headless=False, size=(1366, 768), full_prefix=FULL_PREFIX):
+    def __init__(self, headless=False, size=(1366, 768), full_prefix=FULL_PREFIX, user_agent=None):
         self._size = size
         self._full_prefix = full_prefix
-        self._options = self.get_options(headless=headless, size=size)
+        self._user_agent = user_agent
+        self._options = self._get_options(headless=headless, size=size)
         self._driver = webdriver.Chrome(options=self._options)
 
     def __del__(self):
         self._driver.quit()
 
-    def get_options(self, headless=False, size=(1366, 768)):
+    def _get_options(self, headless=False, size=(1366, 768)):
         _options = webdriver.ChromeOptions()
         _options.headless = headless
+        if self._user_agent:
+            _options.add_argument(f"user-agent={self._user_agent}")
         _options.add_argument('--log-level=3')
         _options.add_argument(f"--window-size={size[0]},{size[1]}")
         return _options
@@ -124,7 +128,7 @@ def take(url: str, output: str = '.', verbose: bool = True, overwrite: str = 'sk
     msg(f'Screenshots will be saved to directory "{out_path}"')
 
     msg('Starting browser')
-    screener = Screener(headless=True)
+    screener = Screener(headless=True, user_agent=USER_AGENT)
     msg('Browser lunched')
 
     for line in input_stream:

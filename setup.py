@@ -11,7 +11,7 @@ __dev_build__ = ''   # commonly pipeline number
 
 setup(
     name='webss',
-    version='0.1a4' + __dev_suffix__ + __dev_build__,  # Required
+    version='0.1a5' + __dev_suffix__ + __dev_build__,  # Required
     description='WebScreenShotter - simple command-line utility for creating website screenshots',
     url='https://github.com/ph20/webss',
     author='Alexander Grynchuk',
